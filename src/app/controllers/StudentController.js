@@ -47,8 +47,8 @@ class StudentController {
         }
         // console.log(req.userId) utiliza o id do usuario pegando do token de auth, criado em middlewares/auth.js. neste caso
         // não é preciso pegar o id do user por parametro antes de atualizar seus dados, pois este id ja consta no token.
-        const { email } = req.body;
-        const student = await Student.findByPk(req.userId);
+        const { name, email } = req.body;
+        const student = await Student.findOne({ where: { name } }); // Melhorar buscando por id.
         if (email !== student.email) {
             const studentExists = await Student.findOne({ where: { email } });
 
@@ -59,7 +59,7 @@ class StudentController {
             }
         }
 
-        const { id, name } = await student.update(req.body);
+        const { id } = await student.update(req.body);
         return res.json({
             id,
             name,
