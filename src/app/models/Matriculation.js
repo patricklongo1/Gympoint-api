@@ -5,6 +5,8 @@ class Matriculation extends Model {
         super.init(
             {
                 start_date: Sequelize.DATE,
+                end_date: Sequelize.DATE,
+                price: Sequelize.FLOAT,
             },
             {
                 sequelize,
