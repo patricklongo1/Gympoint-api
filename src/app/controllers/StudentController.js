@@ -3,6 +3,13 @@ import * as Yup from 'yup';
 import Student from '../models/Student';
 
 class StudentController {
+    async index(req, res) {
+        const students = await Student.findAll({
+            attributes: ['id', 'name', 'email'],
+        });
+        return res.json(students);
+    }
+
     async store(req, res) {
         const schema = Yup.object().shape({
             name: Yup.string().required(),
@@ -45,13 +52,16 @@ class StudentController {
         if (!(await schema.isValid(req.body))) {
             return res.status(400).json({ error: 'Validation fails' });
         }
-        // console.log(req.userId) utiliza o id do usuario pegando do token de auth, criado em middlewares/auth.js. neste caso
-        // não é preciso pegar o id do user por parametro antes de atualizar seus dados, pois este id ja consta no token.
+
+        const { id } = req.params;
+        const student = await Student.findOne({ where: { id } });
+        if (!student) {
+            return res.status(401).json('User does not exists');
+        }
+
         const { name, email } = req.body;
-        const student = await Student.findOne({ where: { name } }); // Melhorar buscando por id.
         if (email !== student.email) {
             const studentExists = await Student.findOne({ where: { email } });
-
             if (studentExists) {
                 return res
                     .status(400)
@@ -59,12 +69,20 @@ class StudentController {
             }
         }
 
-        const { id } = await student.update(req.body);
+        await student.update(req.body);
         return res.json({
             id,
             name,
             email,
         });
+    }
+
+    async destroy(req, res) {
+        const { id } = req.params;
+        const student = await Student.findByPk(id);
+        await student.destroy();
+
+        return res.json({ message: 'User was deleted' });
     }
 }
 

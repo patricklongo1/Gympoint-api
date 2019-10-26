@@ -1,7 +1,7 @@
 module.exports = {
     dialect: 'postgres', // Verificar documentação do sequelize para dependencias
     host: 'localhost',
-    port: 5433,
+    port: 5432,
     username: 'postgres',
     password: 'docker',
     database: 'gympoint',
