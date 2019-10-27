@@ -60,7 +60,7 @@ class StudentController {
         }
 
         const { name, email } = req.body;
-        if (email !== student.email) {
+        if (email && email !== student.email) {
             const studentExists = await Student.findOne({ where: { email } });
             if (studentExists) {
                 return res

@@ -1,12 +1,12 @@
 import * as Yup from 'yup';
-import { isAfter, addMonths, parseISO, format } from 'date-fns';
-import pt from 'date-fns/locale/pt';
+import { isAfter, addMonths, parseISO } from 'date-fns';
 
 import Matriculation from '../models/Matriculation';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
 
-import Mail from '../../lib/Mail';
+import WellcomeMail from '../jobs/WellcomeMail';
+import Queue from '../../lib/Queue';
 
 class MatriculationController {
     async index(req, res) {
@@ -57,23 +57,10 @@ class MatriculationController {
             price,
         });
 
-        const formatedDate = format(
+        await Queue.add(WellcomeMail.key, {
+            student,
+            plan,
             parsedDate,
-            "'dia' dd 'de' MMMM 'de' yyyy",
-            {
-                locale: pt,
-            }
-        );
-
-        await Mail.sendMail({
-            to: `${student.name} <${student.email}>`,
-            subject: 'Mátricula realizada com sucesso',
-            template: 'wellcome',
-            context: {
-                student: student.name,
-                plan: plan.title,
-                formatedDate,
-            },
         });
 
         return res.json(matriculation);
