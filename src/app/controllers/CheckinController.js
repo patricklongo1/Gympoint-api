@@ -15,6 +15,7 @@ class CheckinController {
 
         const checkins = await Checkin.findAll({
             where: { student_id: id },
+            attributes: ['id', 'createdAt', 'student_id'],
         });
 
         return res
@@ -26,7 +27,6 @@ class CheckinController {
     async store(req, res) {
         const { id } = req.params;
         const student = await Student.findByPk(id);
-
         if (!student) {
             return res.status(401).json({ error: 'Student does not exists' });
         }
@@ -41,6 +41,12 @@ class CheckinController {
                 },
             },
         });
+
+        if (checkinsInPeriod.length >= 5) {
+            return res
+                .status(401)
+                .json({ error: 'Student reached weekly check-in limit' });
+        }
 
         await Checkin.create({
             student_id: student.id,
