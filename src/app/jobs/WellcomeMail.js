@@ -8,7 +8,6 @@ class WellcomeMail {
     }
 
     async handle({ data }) {
-        console.log('a fila executou');
         const { student, plan, parsedDate } = data;
         const formatedDate = format(
             parseISO(parsedDate),

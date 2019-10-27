@@ -3,6 +3,9 @@ import * as Yup from 'yup';
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
 
+import HelpAnswerMail from '../jobs/HelpAnswerMail';
+import Queue from '../../lib/Queue';
+
 class HelpOrderController {
     async index(req, res) {
         const helpOrders = await HelpOrder.findAll({
@@ -70,7 +73,15 @@ class HelpOrderController {
 
         const { id } = req.params;
 
-        const helpOrder = await HelpOrder.findByPk(id);
+        const helpOrder = await HelpOrder.findByPk(id, {
+            include: [
+                {
+                    model: Student,
+                    as: 'student', // Include para criar o objeto para uso no envio de email logo abaixo
+                    attributes: ['name', 'email'],
+                },
+            ],
+        });
         if (!helpOrder) {
             return res
                 .status(401)
@@ -81,6 +92,8 @@ class HelpOrderController {
         helpOrder.answer = answer;
         helpOrder.answer_at = new Date();
         await helpOrder.save();
+
+        await Queue.add(HelpAnswerMail.key, helpOrder);
 
         return res.json(helpOrder);
     }
