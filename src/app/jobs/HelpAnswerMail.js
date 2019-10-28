@@ -1,13 +1,13 @@
 import Mail from '../../lib/Mail';
 
-class WellcomeMail {
+class HelpAnswerMail {
     get key() {
-        return 'WellcomeMail';
+        return 'HelpAnswerMail';
     }
 
     async handle({ data }) {
         const { helpOrder } = data;
-        Mail.sendMail({
+        await Mail.sendMail({
             to: `${helpOrder.student.name} <${helpOrder.student.email}>`,
             subject: 'Sua dúvida foi respondida!',
             template: 'helpanswer',
@@ -20,4 +20,4 @@ class WellcomeMail {
     }
 }
 
-export default new WellcomeMail();
+export default new HelpAnswerMail();

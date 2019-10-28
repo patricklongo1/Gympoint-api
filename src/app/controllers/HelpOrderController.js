@@ -93,7 +93,7 @@ class HelpOrderController {
         helpOrder.answer_at = new Date();
         await helpOrder.save();
 
-        await Queue.add(HelpAnswerMail.key, helpOrder);
+        await Queue.add(HelpAnswerMail.key, { helpOrder });
 
         return res.json(helpOrder);
     }
