@@ -46,10 +46,18 @@ class MatriculationController {
         const plan = await Plan.findOne({
             where: { id: plan_id },
         });
+
+        if (!plan) {
+            return res.status(401).json({ error: 'Plan does not exists' });
+        }
+
         const price = plan.price * plan.duration;
 
         const { start_date } = req.body;
         const parsedDate = parseISO(start_date);
+
+        console.log(new Date(), parsedDate);
+
         const validDate = isAfter(parsedDate, new Date());
         if (!validDate) {
             return res.status(401).json({ error: 'Invalid Date' });
