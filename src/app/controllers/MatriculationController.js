@@ -11,7 +11,14 @@ import Queue from '../../lib/Queue';
 class MatriculationController {
     async index(req, res) {
         const matriculation = await Matriculation.findAll({
-            attributes: ['id', 'student_id', 'plan_id', 'start_date', 'price'],
+            attributes: [
+                'id',
+                'student_id',
+                'plan_id',
+                'start_date',
+                'price',
+                'active',
+            ],
         });
         return res.json(matriculation);
     }
