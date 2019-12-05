@@ -6,7 +6,7 @@ import Student from '../models/Student';
 class StudentController {
     async index(req, res) {
         const students = await Student.findAll({
-            attributes: ['id', 'name', 'email'],
+            attributes: ['name', 'email', 'age'],
         });
         return res.json(students);
     }
@@ -22,7 +22,7 @@ class StudentController {
             if (req.params.name === '') {
                 // this.index(req, res);
                 const students = await Student.findAll({
-                    attributes: ['id', 'name', 'email'],
+                    attributes: ['name', 'email', 'age'],
                 });
                 return res.json(students);
             }
