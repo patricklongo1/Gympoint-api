@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
 import Student from '../models/Student';
@@ -8,6 +9,27 @@ class StudentController {
             attributes: ['id', 'name', 'email'],
         });
         return res.json(students);
+    }
+
+    async show(req, res) {
+        const studentsFound = await Student.findAll({
+            where: {
+                name: { [Op.like]: `%${req.params.name}%` },
+            },
+        });
+
+        if (studentsFound.length <= 0) {
+            if (req.params.name === '') {
+                // this.index(req, res);
+                const students = await Student.findAll({
+                    attributes: ['id', 'name', 'email'],
+                });
+                return res.json(students);
+            }
+            return res.json({ notFound: 'Users does not found' });
+        }
+
+        return res.json(studentsFound);
     }
 
     async store(req, res) {
@@ -80,8 +102,12 @@ class StudentController {
     async destroy(req, res) {
         const { id } = req.params;
         const student = await Student.findByPk(id);
-        await student.destroy();
 
+        if (!student) {
+            return res.json({ ERROR: 'User does not exists' });
+        }
+
+        await student.destroy();
         return res.json({ message: 'User was deleted' });
     }
 }
