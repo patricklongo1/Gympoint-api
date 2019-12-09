@@ -6,7 +6,7 @@ import Student from '../models/Student';
 class StudentController {
     async index(req, res) {
         const students = await Student.findAll({
-            attributes: ['name', 'email', 'age'],
+            attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
         });
         return res.json(students);
     }
@@ -20,9 +20,15 @@ class StudentController {
 
         if (studentsFound.length <= 0) {
             if (req.params.name === '') {
-                // this.index(req, res);
                 const students = await Student.findAll({
-                    attributes: ['name', 'email', 'age'],
+                    attributes: [
+                        'id',
+                        'name',
+                        'email',
+                        'age',
+                        'weight',
+                        'height',
+                    ],
                 });
                 return res.json(students);
             }
@@ -54,12 +60,17 @@ class StudentController {
             return res.status(400).json({ error: 'Student already exists' });
         }
 
-        const { id, name, email } = await Student.create(req.body); // substitui const {user} para não retornar tudo.
+        const { id, name, email, age, weight, height } = await Student.create(
+            req.body
+        ); // substitui const {user} para não retornar tudo.
 
         return res.json({
             id,
             name,
             email,
+            age,
+            weight,
+            height,
         });
     }
 
