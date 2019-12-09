@@ -78,6 +78,7 @@ class StudentController {
         const schema = Yup.object().shape({
             name: Yup.string(),
             email: Yup.string().email(),
+            age: Yup.number(),
             weight: Yup.number(),
             height: Yup.number(),
         });
