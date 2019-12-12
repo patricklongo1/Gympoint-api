@@ -20,6 +20,18 @@ class MatriculationController {
                 'price',
                 'active',
             ],
+            include: [
+                {
+                    model: Student,
+                    as: 'student',
+                    attributes: ['name'],
+                },
+                {
+                    model: Plan,
+                    as: 'plan',
+                    attributes: ['title'],
+                },
+            ]
         });
         return res.json(matriculation);
     }
@@ -44,6 +56,18 @@ class MatriculationController {
                         'price',
                         'active',
                     ],
+                    include: [
+                        {
+                            model: Student,
+                            as: 'student',
+                            attributes: ['name'],
+                        },
+                        {
+                            model: Plan,
+                            as: 'plan',
+                            attributes: ['title'],
+                        },
+                    ]
                 });
                 return res.json(matriculations);
             }
@@ -85,8 +109,6 @@ class MatriculationController {
 
         const { start_date } = req.body;
         const parsedDate = parseISO(start_date);
-
-        console.log(new Date(), parsedDate);
 
         const validDate = isAfter(parsedDate, new Date());
         if (!validDate) {
