@@ -56,6 +56,18 @@ class MatriculationController {
                         'price',
                         'active',
                     ],
+                    include: [
+                        {
+                            model: Student,
+                            as: 'student',
+                            attributes: ['name'],
+                        },
+                        {
+                            model: Plan,
+                            as: 'plan',
+                            attributes: ['title'],
+                        },
+                    ],
                 });
                 return res.json(matriculations);
             }
