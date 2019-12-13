@@ -5,37 +5,28 @@ import Student from '../models/Student';
 
 class StudentController {
     async index(req, res) {
-        const students = await Student.findAll({
-            attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
-        });
-        return res.json(students);
+        const { q } = req.query;
+
+        const student = q
+            ? await Student.findAll({
+                  where: { name: { [Op.iLike]: `%${q}%` } },
+                  order: ['name'],
+              })
+            : await Student.findAll({
+                  order: ['name'],
+              });
+
+        return res.json(student);
     }
 
     async show(req, res) {
-        const studentsFound = await Student.findAll({
-            where: {
-                name: { [Op.like]: `%${req.params.name}%` },
-            },
-        });
+        const student = await Student.findByPk(req.params.id);
 
-        if (studentsFound.length <= 0) {
-            if (req.params.name === '') {
-                const students = await Student.findAll({
-                    attributes: [
-                        'id',
-                        'name',
-                        'email',
-                        'age',
-                        'weight',
-                        'height',
-                    ],
-                });
-                return res.json(students);
-            }
-            return res.json({ notFound: 'Users does not found' });
+        if (!student) {
+            return res.status(400).json({ error: 'Student not found' });
         }
 
-        return res.json(studentsFound);
+        return res.json(student);
     }
 
     async store(req, res) {

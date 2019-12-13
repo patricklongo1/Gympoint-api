@@ -22,7 +22,6 @@ routes.get('/students/:id/help_orders', HelpOrderController.show);
 routes.use(authMiddleware); // Só passa pelo middleware o que vem abaixo.
 
 routes.get('/students', StudentController.index);
-routes.get('/students/:name', StudentController.show);
 routes.post('/students', StudentController.store);
 routes.put('/students/:id', StudentController.update);
 routes.delete('/students/:id', StudentController.destroy);
