@@ -11,6 +11,13 @@ class HelpOrderController {
         const helpOrders = await HelpOrder.findAll({
             where: { answer: null },
             attributes: ['id', 'student_id', 'question'],
+            include: [
+                {
+                    model: Student,
+                    as: 'student',
+                    attributes: ['name'],
+                },
+            ],
         });
 
         return res.json(helpOrders).limit(20);
