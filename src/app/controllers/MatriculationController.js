@@ -1,6 +1,5 @@
-import { Op } from 'sequelize';
 import * as Yup from 'yup';
-import { isAfter, addMonths, parseISO } from 'date-fns';
+import { addMonths, parseISO } from 'date-fns';
 
 import Matriculation from '../models/Matriculation';
 import Plan from '../models/Plan';
@@ -91,21 +90,27 @@ class MatriculationController {
             return res.status(401).json({ error: 'Plan does not exists' });
         }
 
+        const studentHaveMatriculation = await Matriculation.findOne({
+            where: { student_id },
+        });
+
+        if (studentHaveMatriculation) {
+            return res
+                .status(400)
+                .json({ error: 'Student already enrolled in a plan' });
+        }
+
         const price = plan.price * plan.duration;
 
         const { start_date } = req.body;
         const parsedDate = parseISO(start_date);
 
-        const validDate = isAfter(parsedDate, new Date());
-        if (!validDate) {
-            return res.status(401).json({ error: 'Invalid Date' });
-        }
         const endDate = addMonths(parsedDate, plan.duration);
 
         const matriculation = await Matriculation.create({
             student_id,
             plan_id,
-            start_date: parsedDate,
+            start_date,
             end_date: endDate,
             price,
         });
