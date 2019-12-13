@@ -37,44 +37,32 @@ class MatriculationController {
     }
 
     async show(req, res) {
-        const idFormated = req.params.student_id;
-        Number(idFormated);
-        const matriculationsFound = await Matriculation.findAll({
-            where: {
-                student_id: { [Op.like]: `%${idFormated}` },
-            },
+        const { matriculation_id } = req.params;
+
+        const matriculation = await Matriculation.findOne({
+            where: { id: matriculation_id },
+            attributes: ['id', 'start_date', 'end_date', 'price'],
+            include: [
+                {
+                    model: Student,
+                    as: 'student',
+                    attributes: ['id', 'name', 'email'],
+                },
+                {
+                    model: Plan,
+                    as: 'plan',
+                    attributes: ['id', 'title', 'duration', 'price'],
+                },
+            ],
         });
 
-        if (matriculationsFound.length <= 0) {
-            if (req.params.student_id === '') {
-                const matriculations = await Matriculation.findAll({
-                    attributes: [
-                        'id',
-                        'student_id',
-                        'plan_id',
-                        'start_date',
-                        'price',
-                        'active',
-                    ],
-                    include: [
-                        {
-                            model: Student,
-                            as: 'student',
-                            attributes: ['name'],
-                        },
-                        {
-                            model: Plan,
-                            as: 'plan',
-                            attributes: ['title'],
-                        },
-                    ],
-                });
-                return res.json(matriculations);
-            }
-            return res.json({ notFound: 'Matriculations does not found' });
+        if (!matriculation) {
+            return res
+                .status(400)
+                .json({ error: 'Matriculation does not exists' });
         }
 
-        return res.json(matriculationsFound);
+        return res.json(matriculation);
     }
 
     async store(req, res) {
@@ -132,33 +120,36 @@ class MatriculationController {
     }
 
     async update(req, res) {
-        const schema = Yup.object().shape({
-            student_id: Yup.number(),
-            plan_id: Yup.number(),
-            start_date: Yup.date(),
-        });
+        const matriculation = await Matriculation.findByPk(req.params.id);
+        const { student_id, plan_id, start_date } = req.body;
 
-        if (!(await schema.isValid(req.body))) {
-            return res.status(400).json({ error: 'Validation fails' });
-        }
-
-        const { id } = req.params;
-        const matriculation = await Matriculation.findOne({ where: { id } });
         if (!matriculation) {
-            return res.status(401).json('Matriculation does not exists');
+            return res
+                .status(400)
+                .json({ error: 'Matriculation does not exists' });
         }
 
-        const { student_id, plan_id } = req.body;
-        if (student_id && student_id !== matriculation.student_id) {
-            return res.status(400).json({ error: 'Wrong student' });
+        const student = await Student.findByPk(student_id);
+        if (!student) {
+            return res.status(400).json({ error: 'Student not exists' });
         }
 
-        await matriculation.update(req.body);
-        return res.json({
-            id,
+        const plan = await Plan.findByPk(plan_id);
+        if (!plan) {
+            return res.status(400).json({ error: 'Plan does not exists' });
+        }
+
+        const end_date = addMonths(parseISO(start_date), plan.duration);
+
+        await matriculation.update({
             student_id,
             plan_id,
+            start_date,
+            end_date,
+            price: plan.duration * plan.price,
         });
+
+        return res.json(matriculation);
     }
 
     async destroy(req, res) {
