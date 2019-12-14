@@ -28,7 +28,6 @@ class PlanController {
         }
 
         const { id, title, duration, price } = await Plan.create(req.body);
-
         return res.json({
             id,
             title,
