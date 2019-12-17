@@ -5,15 +5,19 @@ import Student from '../models/Student';
 
 class StudentController {
     async index(req, res) {
-        const { q } = req.query;
+        const { q, page = 1 } = req.query;
 
         const student = q
             ? await Student.findAll({
                   where: { name: { [Op.iLike]: `%${q}%` } },
                   order: ['name'],
+                  limit: 10,
+                  offset: (page - 1) * 10,
               })
             : await Student.findAll({
                   order: ['name'],
+                  limit: 10,
+                  offset: (page - 1) * 10,
               });
 
         return res.json(student);

@@ -10,6 +10,7 @@ import Queue from '../../lib/Queue';
 
 class MatriculationController {
     async index(req, res) {
+        const { page = 1 } = req.query;
         const matriculation = await Matriculation.findAll({
             attributes: [
                 'id',
@@ -31,6 +32,9 @@ class MatriculationController {
                     attributes: ['title'],
                 },
             ],
+            order: ['price'],
+            limit: 10,
+            offset: (page - 1) * 10,
         });
         return res.json(matriculation);
     }
