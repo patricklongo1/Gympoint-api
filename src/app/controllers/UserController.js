@@ -52,8 +52,6 @@ class UserController {
         if (!(await schema.isValid(req.body))) {
             return res.status(400).json({ error: 'Validation fails' });
         }
-        // console.log(req.userId) utiliza o id do usuario pegando do token de auth, criado em middlewares/auth.js. neste caso
-        // não é preciso pegar o id do user por parametro antes de atualizar seus dados, pois este id ja consta no token.
         const { email, oldPassword } = req.body;
         const user = await User.findByPk(req.userId);
         if (email !== user.email) {
